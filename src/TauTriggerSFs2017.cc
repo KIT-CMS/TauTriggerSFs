@@ -39,7 +39,6 @@ const TF1* loadTF1(const TFile* inputFile, const std::string& functionName)
   return function;
 }
 
-
 // Make sure we stay on our histograms
 double ptCheck(double pt)
 {
@@ -48,6 +47,12 @@ double ptCheck(double pt)
   return pt;
 }
 
+double ptCheckST(double pt)
+{
+  if (pt > 1000)  pt = 1000;
+  else if (pt < 80) pt = 80;
+  return pt;
+}
 
 // Make sure to have only old DMs, DM0, DM1, DM10
 int dmCheck(int dm )
@@ -70,52 +75,73 @@ TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std
     assert(0);
   }
 
-  // Load the TF1s containing the analytic best-fit results
-  // This is done per decay mode: 0, 1, 10.
-  fitDataMap_ [ 0] = loadTF1(inputFile_, Form("%s_%s%s_dm0_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
-  fitDataMap_ [ 1] = loadTF1(inputFile_, Form("%s_%s%s_dm1_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
-  fitDataMap_ [10] = loadTF1(inputFile_, Form("%s_%s%s_dm10_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
-  fitMCMap_ [ 0] = loadTF1(inputFile_, Form("%s_%s%s_dm0_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
-  fitMCMap_ [ 1] = loadTF1(inputFile_, Form("%s_%s%s_dm1_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
-  fitMCMap_ [10] = loadTF1(inputFile_, Form("%s_%s%s_dm10_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
-  
+  if (trigger_.compare("singletau") == 0)
+  {
+      // Load the TGraphAssymErrors containing the single tau trigger efficiencies.
+      // This is done per decay mode: 0, 1, 10
+      effSTMCMap_ [0] = loadTH1(inputFile_, Form("%s_%s%s_dm0_MC", trigger_.data(), tauWP_.data(), wpType_.data()));
+      effSTMCMap_ [1] = loadTH1(inputFile_, Form("%s_%s%s_dm1_MC", trigger_.data(), tauWP_.data(), wpType_.data()));
+      effSTMCMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_MC", trigger_.data(), tauWP_.data(), wpType_.data()));
+      effSTDataMap_ [0] = loadTH1(inputFile_, Form("%s_%s%s_dm0_DATA", trigger_.data(), tauWP_.data(), wpType_.data()));
+      effSTDataMap_ [1] = loadTH1(inputFile_, Form("%s_%s%s_dm1_DATA", trigger_.data(), tauWP_.data(), wpType_.data()));
+      effSTDataMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_DATA", trigger_.data(), tauWP_.data(), wpType_.data()));
 
-  // Load the TH1s containing the analytic best-fit result in 1 GeV incriments and the associated uncertainty.
-  // This is done per decay mode: 0, 1, 10.
-  fitUncDataMap_ [ 0] = loadTH1(inputFile_, Form("%s_%s%s_dm0_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
-  fitUncDataMap_ [ 1] = loadTH1(inputFile_, Form("%s_%s%s_dm1_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
-  fitUncDataMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
-  fitUncMCMap_ [ 0] = loadTH1(inputFile_, Form("%s_%s%s_dm0_MC_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
-  fitUncMCMap_ [ 1] = loadTH1(inputFile_, Form("%s_%s%s_dm1_MC_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
-  fitUncMCMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_MC_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
+      effSTDataUncUpMap_ [0] = loadTH1(inputFile_, Form("%s_%s%s_dm0_DATA_Up", trigger_.data(), tauWP_.data(), wpType_.data()));
+      effSTDataUncUpMap_ [1] = loadTH1(inputFile_, Form("%s_%s%s_dm1_DATA_Up", trigger_.data(), tauWP_.data(), wpType_.data()));
+      effSTDataUncUpMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_DATA_Up", trigger_.data(), tauWP_.data(), wpType_.data()));
+      effSTDataUncDownMap_ [0] = loadTH1(inputFile_, Form("%s_%s%s_dm0_DATA_Down", trigger_.data(), tauWP_.data(), wpType_.data()));
+      effSTDataUncDownMap_ [1] = loadTH1(inputFile_, Form("%s_%s%s_dm1_DATA_Down", trigger_.data(), tauWP_.data(), wpType_.data()));
+      effSTDataUncDownMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_DATA_Down", trigger_.data(), tauWP_.data(), wpType_.data()));
+  }
+  else
+  {
+
+      // Load the TF1s containing the analytic best-fit results
+      // This is done per decay mode: 0, 1, 10.
+      fitDataMap_ [ 0] = loadTF1(inputFile_, Form("%s_%s%s_dm0_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
+      fitDataMap_ [ 1] = loadTF1(inputFile_, Form("%s_%s%s_dm1_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
+      fitDataMap_ [10] = loadTF1(inputFile_, Form("%s_%s%s_dm10_DATA_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
+      fitMCMap_ [ 0] = loadTF1(inputFile_, Form("%s_%s%s_dm0_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
+      fitMCMap_ [ 1] = loadTF1(inputFile_, Form("%s_%s%s_dm1_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
+      fitMCMap_ [10] = loadTF1(inputFile_, Form("%s_%s%s_dm10_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
+
+      // Load the TH1s containing the analytic best-fit result in 1 GeV incriments and the associated uncertainty.
+      // This is done per decay mode: 0, 1, 10.
+      fitUncDataMap_ [ 0] = loadTH1(inputFile_, Form("%s_%s%s_dm0_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
+      fitUncDataMap_ [ 1] = loadTH1(inputFile_, Form("%s_%s%s_dm1_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
+      fitUncDataMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_DATA_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
+      fitUncMCMap_ [ 0] = loadTH1(inputFile_, Form("%s_%s%s_dm0_MC_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
+      fitUncMCMap_ [ 1] = loadTH1(inputFile_, Form("%s_%s%s_dm1_MC_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
+      fitUncMCMap_ [10] = loadTH1(inputFile_, Form("%s_%s%s_dm10_MC_errorBand", trigger_.data(), tauWP_.data(), wpType_.data()));
 
 
 
-  // Because of low statistics in the problem region of the barrel, we apply the Eta-Phi corrections
-  // based on taus firing mutau trigger and passing the vloose MVA WP. This provides the most statistically
-  // robust measurement for the correction. Considering the three Eta-Phi regions should not have significantly
-  // different SF adjustments for different MVA WPs, this should also be a safe choice.
-  std::string etaPhiWP = "vloose";
-  std::string etaPhiTrigger = "mutau";
+      // Because of low statistics in the problem region of the barrel, we apply the Eta-Phi corrections
+      // based on taus firing mutau trigger and passing the vloose MVA WP. This provides the most statistically
+      // robust measurement for the correction. Considering the three Eta-Phi regions should not have significantly
+      // different SF adjustments for different MVA WPs, this should also be a safe choice.
+      std::string etaPhiWP = "vloose";
+      std::string etaPhiTrigger = "mutau";
 
-  // Load the TH2s containing the eta phi efficiency corrections
-  // This is done per decay mode: 0, 1, 10.
-  effEtaPhiDataMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_DATA", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
-  effEtaPhiDataMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_DATA", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
-  effEtaPhiDataMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_DATA", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
-  effEtaPhiMCMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_MC", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
-  effEtaPhiMCMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_MC", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
-  effEtaPhiMCMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_MC", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      // Load the TH2s containing the eta phi efficiency corrections
+      // This is done per decay mode: 0, 1, 10.
+      effEtaPhiDataMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_DATA", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      effEtaPhiDataMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_DATA", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      effEtaPhiDataMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_DATA", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      effEtaPhiMCMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_MC", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      effEtaPhiMCMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_MC", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      effEtaPhiMCMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_MC", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
 
 
-  // Eta Phi Averages
-  // This is done per decay mode: 0, 1, 10.
-  effEtaPhiAvgDataMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_DATA_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
-  effEtaPhiAvgDataMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_DATA_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
-  effEtaPhiAvgDataMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_DATA_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
-  effEtaPhiAvgMCMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_MC_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
-  effEtaPhiAvgMCMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_MC_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
-  effEtaPhiAvgMCMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_MC_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      // Eta Phi Averages
+      // This is done per decay mode: 0, 1, 10.
+      effEtaPhiAvgDataMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_DATA_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      effEtaPhiAvgDataMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_DATA_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      effEtaPhiAvgDataMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_DATA_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      effEtaPhiAvgMCMap_ [ 0] = loadTH2(inputFile_, Form("%s_%s%s_dm0_MC_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      effEtaPhiAvgMCMap_ [ 1] = loadTH2(inputFile_, Form("%s_%s%s_dm1_MC_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+      effEtaPhiAvgMCMap_ [10] = loadTH2(inputFile_, Form("%s_%s%s_dm10_MC_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
+  }
 }
 
 
@@ -287,4 +313,56 @@ double TauTriggerSFs2017::getTriggerScaleFactorUncert(double pt, double eta, dou
   double sf = (effData / effMC);
   if (uncert == "Up") return sf * (1. + deltaSF);
   else                return sf * (1. - deltaSF);
+}
+
+double getSingleTauTriggerEfficiency(double pt, const TH1* effHist)
+{
+  double pt_checked = ptCheckST( pt );
+  double eff = effHist->GetBinContent( (const_cast<TH1*>(effHist))->FindBin(pt_checked));
+
+  return eff;
+}
+
+double TauTriggerSFs2017::getSingleTauTriggerEfficiencyMC(double pt, int dm) const
+{
+  int dm_checked = dmCheck( dm );
+  if ( (dm_checked!=0) && (dm_checked!=1) && (dm_checked!=10) )
+  {
+    std::cerr << Form("Efficiencies only provided for DMs 0, 1, 10.  You provided DM %i", dm_checked) << std::endl;
+    assert(0);
+  }
+  return getSingleTauTriggerEfficiency(pt, effSTMCMap_.at(dm_checked));
+}
+
+double TauTriggerSFs2017::getSingleTauTriggerEfficiencyData(double pt, int dm) const
+{
+  int dm_checked = dmCheck( dm );
+  if ( (dm_checked!=0) && (dm_checked!=1) && (dm_checked!=10) )
+  {
+    std::cerr << Form("Efficiencies only provided for DMs 0, 1, 10.  You provided DM %i", dm_checked) << std::endl;
+    assert(0);
+  }
+  return getSingleTauTriggerEfficiency(pt, effSTDataMap_.at(dm_checked));
+}
+
+double TauTriggerSFs2017::getSingleTauTriggerEfficiencyDataUncertUp(double pt, int dm) const
+{
+  int dm_checked = dmCheck( dm );
+  if ( (dm_checked!=0) && (dm_checked!=1) && (dm_checked!=10) )
+  {
+    std::cerr << Form("Efficiencies only provided for DMs 0, 1, 10.  You provided DM %i", dm_checked) << std::endl;
+    assert(0);
+  }
+  return getSingleTauTriggerEfficiency(pt, effSTDataUncUpMap_.at(dm_checked));
+}
+
+double TauTriggerSFs2017::getSingleTauTriggerEfficiencyDataUncertDown(double pt, int dm) const
+{
+  int dm_checked = dmCheck( dm );
+  if ( (dm_checked!=0) && (dm_checked!=1) && (dm_checked!=10) )
+  {
+    std::cerr << Form("Efficiencies only provided for DMs 0, 1, 10.  You provided DM %i", dm_checked) << std::endl;
+    assert(0);
+  }
+  return getSingleTauTriggerEfficiency(pt, effSTDataUncDownMap_.at(dm_checked));
 }
