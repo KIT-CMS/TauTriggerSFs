@@ -7,8 +7,11 @@ efficiency ingredients:
     TH1 containing error band from fit
 """
 import argparse
+import logging
 
 import ROOT
+ROOT.gROOT.SetBatch()
+ROOT.PyConfig.IgnoreCommandLineOptions = True
 from TauAnalysisTools.TauTriggerSFs.helpers import getHist, getGraph, getFit, getHistFromGraph
 
 parser = argparse.ArgumentParser()
@@ -19,25 +22,37 @@ parser.add_argument("output", type=str,
 parser.add_argument("-s", "--samples", type=str, nargs="+",
                     default=["MC", "DATA", "EMB"],
                     help="Sample types to be processed.")
+parser.add_argument("--mva", action="store_true",
+                    help="Use MVA tau id instead of deep tau id.")
 args = parser.parse_args()
 
-print "Making initial SF file"
+logging.info("Making initial SF file")
 
 iFile = ROOT.TFile(args.input, "read")
 oFile = ROOT.TFile(args.output, "recreate")
 
-# Supporting 2017 MVAv2 only
-# for trigger in ['ditau', 'mutau', 'etau']:
-for trigger in ["etau"]:
+dms = ["dm0", "dm1", "dm10"]
+if args.mva:
+    pass
+else:
+    dms.append("dm11")
+
+for trigger in ['ditau', 'mutau', 'etau']:
     for wp in ['vloose', 'loose', 'medium', 'tight', 'vtight', 'vvtight']: # No VVLoose
-        for dm in ['dm0', 'dm1', 'dm10']:
+        for dm in dms:
             for sample in args.samples:
-                # iName2017 = trigger+'_XXX_'+dm+'_'+wp+'TauMVA_'+sample
-                # iName2018 = trigger+'_XXX_'+wp+'TauMVA_'+dm+'_'+sample
-                iName = trigger+'_XXX_'+wp+'TauMVA_'+dm+'_'+sample
-                iNameSF = trigger+'_XXX_'+wp+'TauMVA_'+dm
-                saveName = trigger+'_'+wp+'MVAv2_'+dm+'_'+sample
-                saveNameSF = trigger+'_'+wp+'MVAv2_'+dm
+                if args.mva:
+                    iName = trigger+'_XXX_'+wp+'TauMVA_'+dm+'_'+sample
+                    iNameSF = trigger+'_XXX_'+wp+'TauMVA_'+dm
+                    saveName = trigger+'_'+wp+'MVAv2_'+dm+'_'+sample
+                    saveNameSF = trigger+'_'+wp+'MVAv2_'+dm
+                else:
+                    iName = trigger+'_XXX_'+wp+'DeepTau_'+dm+'_'+sample
+                    iNameSF = trigger+'_XXX_'+wp+'DeepTau_'+dm
+                    saveName = trigger+'_'+wp+'DeepTau_'+dm+'_'+sample
+                    saveNameSF = trigger+'_'+wp+'DeepTau_'+dm
+
+                logging.info("Writing histogram with name {}".format(iName.replace("XXX", "gEffi")))
                 g = getGraph( iFile, iName.replace('XXX','gEffi'), saveName+'_graph' )
                 #hFit = getHist( iFile, iName.replace('XXX','hEffiFit'), saveName+'_Fithisto' )
                 #hCoarse = getHist( iFile, iName.replace('XXX','hEffiCoarse'), saveName+'_CoarseBinhisto' )
