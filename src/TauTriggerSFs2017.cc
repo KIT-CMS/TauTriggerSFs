@@ -1,9 +1,8 @@
 #include "TauAnalysisTools/TauTriggerSFs/interface/TauTriggerSFs2017.h"
 
 #include <TString.h> // Form
-
 #include <iostream> // std::cerr, std::endl
-#include <iomanip> 
+#include <iomanip>
 #include <assert.h> // assert
 #include <cmath> // std::sqrt
 
