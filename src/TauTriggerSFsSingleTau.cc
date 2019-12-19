@@ -11,7 +11,7 @@
 
 double ptCheckST(double pt)
 {
-  if (pt > 1000)  pt = 1000;
+  if (pt > 999)  pt = 999;
   else if (pt < 80) pt = 80;
   return pt;
 }
