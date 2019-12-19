@@ -178,13 +178,17 @@ class getTauTriggerSFs :
     def getBinnedScaleFactor (self, pt, dm, sfHisto) :
         pt = self.ptCheck( pt )
         dm = self.dmCheck( dm )
-        sf = sfHisto.GetBinContent(sfHisto.FindBin( pt ))
+        sf = 1
+        if(sfHisto):
+            sf = sfHisto.GetBinContent(sfHisto.FindBin( pt ))
         return sf
 
     def getBinnedScaleFactorUnc(self, pt,  dm, sfHisto) :
         pt = self.ptCheck( pt )
         dm = self.dmCheck( dm )
-        SFunc = sfHisto.GetBinError( sfHisto.FindBin( pt ) )
+        SFunc = 0
+        if(sfHisto):
+            SFunc = sfHisto.GetBinError( sfHisto.FindBin( pt ) )
         return SFunc
 
 	# return the data/MC scale factor
@@ -268,3 +272,72 @@ class getTauTriggerSFs :
             return sf * (1. - deltaSF)
 
 
+class getTauTriggerSFsSingleTau:
+
+    def __init__( self, year=2017, tauWP='tight', wpType='DeepTau' ):
+
+        self.year = year
+        # Default to loading the Tau MVAv2 Medium ID based WPs
+        self.tauWP = tauWP
+        self.wpType = wpType
+        assert( self.tauWP in ['vloose', 'loose', 'medium', 'tight', 'vtight', 'vvtight'] ), "You must choose a WP from: vvvloose, vvloose, vloose, loose, medium, tight, vtight, or vvtight"
+        assert( self.wpType in ['DeepTau'] ), "Choose from two provided ID types: 'DeepTau'."
+        assert( self.wpType == 'DeepTau' ), "Tau POG is currently only providing efficiencies for DeepTau, sorry."
+        assert( self.year in [2016, 2017, 2018] ), "Choose which year trigger efficiencies you need."
+        print "Loading Efficiencies for single tau trigger usingTau %s ID WP %s for year %i" % (self.wpType, self.tauWP, self.year)
+
+        # Assume this is in CMSSW with the below path structure
+        base = os.environ['CMSSW_BASE']
+        self.f = ROOT.TFile( base+'/src/TauAnalysisTools/TauTriggerSFs/data/tauTriggerEfficiencies%i_singletau.root' % self.year, 'r' )
+        assert( isinstance(self.f, ROOT.TFile)), 'Could not find file {}.'.format(
+                base+'/src/TauAnalysisTools/TauTriggerSFs/data/tauTriggerEfficiencies%i_singletau.root')
+
+
+        ## Load the TF1s containing the analytic best-fit results.
+        ## This is done per decay mode: 0, 1, 10, 11.
+        self.effSTMCMap = {}
+        self.effSTDataMap = {}
+        self.effSTDataUncUpMap = {}
+        self.effSTDataUncDownMap = {}
+        for dm in [0, 1, 10, 11]:
+            self.effSTMCMap[dm] = ROOT.gDirectory.Get('singletau_%s%s_dm%i_MC' %  (self.tauWP, self.wpType, dm))
+            self.effSTDataMap[dm] = ROOT.gDirectory.Get('singletau_%s%s_dm%i_DATA' %  (self.tauWP, self.wpType, dm))
+            self.effSTDataUncUpMap[dm] = ROOT.gDirectory.Get('singletau_%s%s_dm%i_DATA_Up' %  (self.tauWP, self.wpType, dm))
+            self.effSTDataUncDownMap[dm] = ROOT.gDirectory.Get('singletau_%s%s_dm%i_DATA_Down' %  (self.tauWP, self.wpType, dm))
+
+    # Make sure we stay on our histograms
+    def ptCheck(self, pt) :
+        if pt > 999 : pt = 999
+        elif pt < 80 : pt = 80
+        return pt
+
+    # Make sure to have only valid new DMs, DM0, DM1, DM10, DM11
+    def dmCheck(self, dm) :
+        if dm == 2 : dm = 1   # Originally, DM=2 was included in oldDM, but with the dynamic strip clustering the second strip was reconstructed together with the first one. So it ends up to DM=1. But, there are still some cases where DM=2 survives.
+        return dm
+
+    # Helper function used by the actual readout functions
+    def _getSingleTauTriggerEfficiency(self, pt, effHist):
+        pt_checked = self.ptCheck(pt)
+        eff = effHist.GetBinContent(effHist.FindBin(pt_checked))
+        return eff
+
+    def getSingleTauTriggerEfficiencyMC(self, pt, dm):
+        dm_checked = self.dmCheck(dm)
+        assert( dm_checked in [0, 1, 10, 11] ), "Efficiencies only provided for DMs 0, 1, 10, 11.  You provided DM %i" % dm
+        return self._getSingleTauTriggerEfficiency(pt, self.effSTMCMap[dm_checked])
+
+    def getSingleTauTriggerEfficiencyData(self, pt, dm):
+        dm_checked = self.dmCheck(dm)
+        assert( dm_checked in [0, 1, 10, 11] ), "Efficiencies only provided for DMs 0, 1, 10, 11.  You provided DM %i" % dm
+        return self._getSingleTauTriggerEfficiency(pt, self.effSTDataMap[dm_checked])
+
+    def getSingleTauTriggerEfficiencyDataUncertUp(self, pt, dm):
+        dm_checked = self.dmCheck(dm)
+        assert( dm_checked in [0, 1, 10, 11] ), "Efficiencies only provided for DMs 0, 1, 10, 11.  You provided DM %i" % dm
+        return self._getSingleTauTriggerEfficiency(pt, self.effSTDataUncUpMap[dm_checked])
+
+    def getSingleTauTriggerEfficiencyDataUncertDown(self, pt, dm):
+        dm_checked = self.dmCheck(dm)
+        assert( dm_checked in [0, 1, 10, 11] ), "Efficiencies only provided for DMs 0, 1, 10, 11.  You provided DM %i" % dm
+        return self._getSingleTauTriggerEfficiency(pt, self.effSTDataUncDownMap[dm_checked])

@@ -39,7 +39,6 @@ const TF1* loadTF1(const TFile* inputFile, const std::string& functionName)
   return function;
 }
 
-
 // Make sure we stay on our histograms
 double ptCheck(double pt)
 {
@@ -47,7 +46,6 @@ double ptCheck(double pt)
   else if ( pt < 20 )  pt = 20;
   return pt;
 }
-
 
 // Make sure to have only old DMs, DM0, DM1, DM10
 int dmCheck(int dm )
@@ -105,7 +103,6 @@ TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std
       fitMCMap_ [11] = loadTF1(inputFile_, Form("%s_%s%s_dm11_MC_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
       fitEMBMap_ [11] = loadTF1(inputFileKIT_, Form("%s_%s%s_dm11_EMB_fit", trigger_.data(), tauWP_.data(), wpType_.data()));
   }
-
 
   // Load the TH1s containing the analytic best-fit result in 1 GeV incriments and the associated uncertainty.
   // This is done per decay mode: 0, 1, 10.

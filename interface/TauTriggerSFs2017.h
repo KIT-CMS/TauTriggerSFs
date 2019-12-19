@@ -87,5 +87,15 @@ protected:
   std::map<int, const TH2*> effEtaPhiAvgEMBMap_;
 };
 
+const TH1* loadTH1(const TFile*, const std::string&);
+
+const TH2* loadTH2(const TFile*, const std::string&);
+
+const TF1* loadTF1(const TFile*, const std::string&);
+
+double ptCheck(double);
+
+int dmCheck(int);
+
 #endif // TauTriggerSFs2017_h
 
