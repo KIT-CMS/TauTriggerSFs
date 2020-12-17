@@ -38,6 +38,7 @@ TauTriggerSFsSingleTau::TauTriggerSFsSingleTau(const std::string& inputFileName,
       effSTDataUncUpMap_ [dm] = loadTH1(inputFile_, Form("singletau_%s%s_dm%i_DATA_Up", tauWP_.data(), wpType_.data(), dm));
       effSTDataUncDownMap_ [dm] = loadTH1(inputFile_, Form("singletau_%s%s_dm%i_DATA_Down", tauWP_.data(), wpType_.data(), dm));
   }
+  inputFile_->Close();
 }
 
 

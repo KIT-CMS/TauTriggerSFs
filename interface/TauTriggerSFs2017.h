@@ -69,29 +69,29 @@ protected:
   std::string wpType_;
   std::vector<int> allowedDMs_;
 
-  std::map<int, const TF1*> fitDataMap_;
-  std::map<int, const TF1*> fitKITDataMap_;
-  std::map<int, const TF1*> fitMCMap_;
-  std::map<int, const TF1*> fitEMBMap_;
-  std::map<int, const TH1*> fitUncDataMap_;
-  std::map<int, const TH1*> fitUncKITDataMap_;
-  std::map<int, const TH1*> fitUncMCMap_;
-  std::map<int, const TH1*> fitUncEMBMap_;
-  std::map<int, const TH2*> effEtaPhiDataMap_;
-  std::map<int, const TH2*> effEtaPhiKITDataMap_;
-  std::map<int, const TH2*> effEtaPhiMCMap_;
-  std::map<int, const TH2*> effEtaPhiEMBMap_;
-  std::map<int, const TH2*> effEtaPhiAvgDataMap_;
-  std::map<int, const TH2*> effEtaPhiAvgKITDataMap_;
-  std::map<int, const TH2*> effEtaPhiAvgMCMap_;
-  std::map<int, const TH2*> effEtaPhiAvgEMBMap_;
+  std::map<int, TF1*> fitDataMap_;
+  std::map<int, TF1*> fitKITDataMap_;
+  std::map<int, TF1*> fitMCMap_;
+  std::map<int, TF1*> fitEMBMap_;
+  std::map<int, TH1*> fitUncDataMap_;
+  std::map<int, TH1*> fitUncKITDataMap_;
+  std::map<int, TH1*> fitUncMCMap_;
+  std::map<int, TH1*> fitUncEMBMap_;
+  std::map<int, TH2*> effEtaPhiDataMap_;
+  std::map<int, TH2*> effEtaPhiKITDataMap_;
+  std::map<int, TH2*> effEtaPhiMCMap_;
+  std::map<int, TH2*> effEtaPhiEMBMap_;
+  std::map<int, TH2*> effEtaPhiAvgDataMap_;
+  std::map<int, TH2*> effEtaPhiAvgKITDataMap_;
+  std::map<int, TH2*> effEtaPhiAvgMCMap_;
+  std::map<int, TH2*> effEtaPhiAvgEMBMap_;
 };
 
-const TH1* loadTH1(const TFile*, const std::string&);
+TH1* loadTH1(const TFile*, const std::string&);
 
-const TH2* loadTH2(const TFile*, const std::string&);
+TH2* loadTH2(const TFile*, const std::string&);
 
-const TF1* loadTF1(const TFile*, const std::string&);
+TF1* loadTF1(const TFile*, const std::string&);
 
 double ptCheck(double);
 

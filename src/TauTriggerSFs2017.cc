@@ -6,31 +6,33 @@
 #include <assert.h> // assert
 #include <cmath> // std::sqrt
 
-const TH1* loadTH1(const TFile* inputFile, const std::string& histogramName)
+TH1* loadTH1(const TFile* inputFile, const std::string& histogramName)
 {
-  const TH1* histogram = dynamic_cast<TH1*>((const_cast<TFile*>(inputFile))->Get(histogramName.data()));
+  TH1* histogram = dynamic_cast<TH1*>((const_cast<TFile*>(inputFile))->Get(histogramName.data()));
   if ( !histogram ) {
     std::cerr << "Failed to load histogram = '" << histogramName << "' from input file !!" << std::endl;
     assert(0);
   }
+  histogram->SetDirectory(0);
   return histogram;
 }
 
 
-const TH2* loadTH2(const TFile* inputFile, const std::string& histogramName)
+TH2* loadTH2(const TFile* inputFile, const std::string& histogramName)
 {
-  const TH2* histogram = dynamic_cast<TH2*>((const_cast<TFile*>(inputFile))->Get(histogramName.data()));
+  TH2* histogram = dynamic_cast<TH2*>((const_cast<TFile*>(inputFile))->Get(histogramName.data()));
   if ( !histogram ) {
     std::cerr << "Failed to load histogram = '" << histogramName << "' from input file !!" << std::endl;
     assert(0);
   }
+  histogram->SetDirectory(0);
   return histogram;
 }
 
 
-const TF1* loadTF1(const TFile* inputFile, const std::string& functionName)
+TF1* loadTF1(const TFile* inputFile, const std::string& functionName)
 { 
-  const TF1* function = dynamic_cast<TF1*>((const_cast<TFile*>(inputFile))->Get(functionName.data()));
+  TF1* function = dynamic_cast<TF1*>((const_cast<TFile*>(inputFile))->Get(functionName.data()));
   if ( !function ) {
     std::cerr << "Failed to load function = '" << functionName << "' from input file !!" << std::endl;
     assert(0);
@@ -176,6 +178,8 @@ TauTriggerSFs2017::TauTriggerSFs2017(const std::string& inputFileName, const std
       effEtaPhiAvgMCMap_ [11] = loadTH2(inputFile_, Form("%s_%s%s_dm11_MC_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
       effEtaPhiAvgEMBMap_ [11] = loadTH2(inputFileKIT_, Form("%s_%s%s_dm11_EMB_AVG", etaPhiTrigger.data(), etaPhiWP.data(), wpType_.data()));
   }
+  inputFile_->Close();
+  inputFileKIT_->Close();
 }
 
 

@@ -47,10 +47,10 @@ protected:
   std::string wpType_;
 
   // Maps for the single tau trigger
-  std::map<int, const TH1*> effSTDataMap_;
-  std::map<int, const TH1*> effSTMCMap_;
-  std::map<int, const TH1*> effSTDataUncUpMap_;
-  std::map<int, const TH1*> effSTDataUncDownMap_;
+  std::map<int, TH1*> effSTDataMap_;
+  std::map<int, TH1*> effSTMCMap_;
+  std::map<int, TH1*> effSTDataUncUpMap_;
+  std::map<int, TH1*> effSTDataUncDownMap_;
 };
 
 #endif // TauTriggerSFsSingleTau_h
